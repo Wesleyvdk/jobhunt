@@ -2,16 +2,17 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { JobStatus } from './uiSlice'
 
 export interface Job {
-  id: string
+  id: number
+  userId: string
   company: string
   position: string
   applicationDate: string
   status: JobStatus
-  notes?: string
-  jobLink?: string
-  followUpDate?: string
-  createdAt: string
-  updatedAt?: string
+  notes?: string | null
+  jobLink?: string | null
+  followUpDate?: string | null
+  createdAt?: string | null
+  updatedAt?: string | null
 }
 
 interface JobsState {
@@ -44,7 +45,7 @@ const jobsSlice = createSlice({
         state.jobs[index] = action.payload
       }
     },
-    deleteJob: (state, action: PayloadAction<string>) => {
+    deleteJob: (state, action: PayloadAction<number>) => {
       state.jobs = state.jobs.filter(job => job.id !== action.payload)
     },
     setLoading: (state, action: PayloadAction<boolean>) => {

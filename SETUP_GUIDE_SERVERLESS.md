@@ -1,28 +1,26 @@
-# JobHunter Setup Guide
+# JobHunter Serverless Setup Guide
 
-This guide will help you set up the JobHunter application locally and deploy it to production.
+This guide will help you set up the JobHunter application using **Next.js API Routes** for a fully serverless deployment on Vercel.
+
+## 🏗️ Architecture Overview
+
+- **Frontend**: Next.js with TypeScript, Redux Toolkit, React Hook Form + Zod
+- **Backend**: Next.js API Routes (serverless functions)
+- **Database**: NeonDB (PostgreSQL) with Drizzle ORM
+- **Authentication**: NextAuth.js with multiple providers
+- **Deployment**: Vercel (fully serverless)
 
 ## Prerequisites
 
 - Node.js 18+ installed
 - A NeonDB account (free tier available)
 - A Vercel account (for deployment)
-- Optional: Google OAuth and GitHub OAuth apps (for social login)
+- Optional: Google OAuth and GitHub OAuth apps
 
-## 1. Clone and Install Dependencies
+## 1. Install Dependencies
 
 ```bash
-# Clone the repository (if not already done)
-git clone <your-repo-url>
-cd jobhunter
-
-# Install frontend dependencies
 npm install
-
-# Install backend dependencies
-cd backend
-npm install
-cd ..
 ```
 
 ## 2. Database Setup (NeonDB)
@@ -35,11 +33,12 @@ cd ..
 
 ### Set Environment Variables
 
-The environment files have been created for you:
-- Frontend: `.env.local`
-- Backend: `backend/.env`
+Copy the example environment file:
+```bash
+copy env.example .env.local
+```
 
-### Frontend Environment Variables (`.env.local`)
+Update `.env.local` with your values:
 
 ```env
 # NextAuth Configuration
@@ -52,29 +51,13 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 GITHUB_ID=your-github-client-id
 GITHUB_SECRET=your-github-client-secret
 
-# API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-```
-
-### Backend Environment Variables (`backend/.env`)
-
-```env
-# Database Configuration
+# Database Configuration (NeonDB)
 DATABASE_URL=your-neondb-connection-string-here
-
-# Server Configuration
-PORT=3001
-FRONTEND_URL=http://localhost:3000
-
-# JWT Configuration
-JWT_SECRET=your-jwt-secret-key-here-change-this-in-production
 ```
 
 ## 3. Database Migration
 
 ```bash
-cd backend
-
 # Generate database migrations
 npm run db:generate
 
@@ -87,22 +70,25 @@ npm run db:studio
 
 ## 4. Run the Application Locally
 
-### Start the Backend (Terminal 1)
-```bash
-cd backend
-npm run start:dev
-```
-
-The backend will be available at http://localhost:3001
-
-### Start the Frontend (Terminal 2)
 ```bash
 npm run dev
 ```
 
-The frontend will be available at http://localhost:3000
+The application will be available at http://localhost:3000
 
-## 5. OAuth Setup (Optional)
+## 5. API Routes Structure
+
+The backend is now built into Next.js using API Routes:
+
+```
+/app/api/
+├── auth/[...nextauth]/route.ts    # NextAuth configuration
+├── jobs/route.ts                   # GET / POST all jobs
+├── jobs/[id]/route.ts             # PATCH / DELETE specific job
+└── jobs/export/route.ts           # GET CSV export
+```
+
+## 6. OAuth Setup (Optional)
 
 ### Google OAuth
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
@@ -118,15 +104,11 @@ The frontend will be available at http://localhost:3000
 3. Set Authorization callback URL: `http://localhost:3000/api/auth/callback/github`
 4. Copy Client ID and Client Secret to your `.env.local`
 
-## 6. Production Deployment
+## 7. Production Deployment
 
-### Deploy Backend to Vercel
-
-The backend is configured to work as serverless functions on Vercel.
+### Deploy to Vercel
 
 ```bash
-cd backend
-
 # Install Vercel CLI if not already installed
 npm install -g vercel
 
@@ -134,21 +116,9 @@ npm install -g vercel
 vercel
 
 # Set environment variables on Vercel
-vercel env add DATABASE_URL
-vercel env add JWT_SECRET
-vercel env add FRONTEND_URL
-```
-
-### Deploy Frontend to Vercel
-
-```bash
-# From the root directory
-vercel
-
-# Set environment variables on Vercel
 vercel env add NEXTAUTH_SECRET
 vercel env add NEXTAUTH_URL
-vercel env add NEXT_PUBLIC_API_URL
+vercel env add DATABASE_URL
 # Add OAuth variables if using them
 vercel env add GOOGLE_CLIENT_ID
 vercel env add GOOGLE_CLIENT_SECRET
@@ -160,57 +130,61 @@ vercel env add GITHUB_SECRET
 
 After deployment, update your environment variables:
 
-**Frontend Production URLs:**
-- `NEXTAUTH_URL`: Your frontend Vercel URL (e.g., `https://your-app.vercel.app`)
-- `NEXT_PUBLIC_API_URL`: Your backend Vercel URL (e.g., `https://your-api.vercel.app/api`)
-
-**Backend Production URLs:**
-- `FRONTEND_URL`: Your frontend Vercel URL (e.g., `https://your-app.vercel.app`)
+**Production URLs:**
+- `NEXTAUTH_URL`: Your Vercel URL (e.g., `https://your-app.vercel.app`)
 
 **OAuth Redirect URIs (if using):**
 - Google: `https://your-app.vercel.app/api/auth/callback/google`
 - GitHub: `https://your-app.vercel.app/api/auth/callback/github`
 
-## 7. Features
+## 8. Features
 
 Your JobHunter application includes:
 
-- ✅ User authentication (email/password, Google, GitHub)
-- ✅ Job application tracking
-- ✅ Advanced filtering and search
-- ✅ Data export to CSV
-- ✅ Responsive design with dark mode
-- ✅ Real-time updates
-- ✅ Form validation
+- ✅ **Serverless architecture** - No separate backend needed
+- ✅ **User authentication** (email/password, Google, GitHub)
+- ✅ **Job application tracking** with full CRUD operations
+- ✅ **Advanced filtering and search**
+- ✅ **Data export to CSV**
+- ✅ **Responsive design with dark mode**
+- ✅ **Real-time updates with React Query**
+- ✅ **Form validation with Zod**
+- ✅ **Type-safe database operations with Drizzle ORM**
 
-## 8. Troubleshooting
-
-### Common Issues
-
-1. **Database connection errors**: Ensure your DATABASE_URL is correct and the database is accessible
-2. **CORS errors**: Check that FRONTEND_URL in backend matches your frontend URL
-3. **OAuth not working**: Verify redirect URIs match exactly in OAuth app settings
-4. **Build errors**: Ensure all environment variables are set correctly
-
-### Development Commands
+## 9. Development Commands
 
 ```bash
-# Frontend
+# Development
 npm run dev          # Start development server
 npm run build        # Build for production
 npm run start        # Start production server
 npm run lint         # Run linter
 
-# Backend
-npm run start:dev    # Start development server
-npm run build        # Build for production
-npm run start:prod   # Start production server
+# Database
 npm run db:generate  # Generate migrations
 npm run db:migrate   # Run migrations
 npm run db:studio    # Open database studio
 ```
 
-## 9. Next Steps
+## 10. Troubleshooting
+
+### Common Issues
+
+1. **Database connection errors**: Ensure your DATABASE_URL is correct
+2. **NextAuth errors**: Check that NEXTAUTH_SECRET and NEXTAUTH_URL are set correctly
+3. **OAuth not working**: Verify redirect URIs match exactly in OAuth app settings
+4. **Build errors**: Ensure all required environment variables are set
+
+### Database Migration Issues
+
+If you need to reset the database:
+```bash
+# Drop and recreate tables (be careful with production data)
+npm run db:generate
+npm run db:migrate
+```
+
+## 11. Next Steps
 
 - Set up monitoring and logging
 - Add email notifications for follow-ups
@@ -219,4 +193,13 @@ npm run db:studio    # Open database studio
 - Enhance analytics and reporting
 - Add mobile app support
 
-For support or questions, please refer to the documentation or create an issue in the repository. 
+## 🎯 Why This Architecture?
+
+✅ **Vercel-native** - Optimized for Vercel's serverless platform
+✅ **No separate backend** - Everything in one Next.js app
+✅ **Scalable** - Automatic scaling with serverless functions
+✅ **Cost-effective** - Pay only for what you use
+✅ **Rapid development** - Full-stack in one codebase
+✅ **Type-safe** - End-to-end TypeScript
+
+Your job hunting tracker is now ready to help you land that dream job! 🚀 

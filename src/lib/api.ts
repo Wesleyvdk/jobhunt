@@ -1,6 +1,6 @@
 import { getSession } from 'next-auth/react'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_BASE_URL = '/api'
 
 interface ApiResponse<T> {
   data: T
@@ -15,13 +15,8 @@ class ApiClient {
       'Content-Type': 'application/json',
     }
     
-    // Handle NextAuth session token
-    if (session?.user) {
-      // For now, we'll use the session itself as auth proof
-      // In production, you'd get a proper JWT from NextAuth
-      headers.Authorization = `Bearer ${(session as any).accessToken || 'session-token'}`
-    }
-    
+    // For Next.js API routes, we use session cookies automatically
+    // No need to manually add Authorization headers
     return headers
   }
 
@@ -71,6 +66,19 @@ class ApiClient {
       headers,
     })
     return this.handleResponse<T>(response)
+  }
+
+  async exportJobs(): Promise<Blob> {
+    const response = await fetch(`${API_BASE_URL}/jobs/export`, {
+      method: 'GET',
+    })
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Export failed' }))
+      throw new Error(errorData.error || `Export failed! status: ${response.status}`)
+    }
+    
+    return response.blob()
   }
 }
 

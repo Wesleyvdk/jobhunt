@@ -3,6 +3,7 @@ import { AuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import GitHubProvider from 'next-auth/providers/github'
+import { UserService } from '@/lib/services/userService'
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -13,16 +14,29 @@ export const authOptions: AuthOptions = {
         password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        // In a real app, you'd validate against your backend
-        // For demo purposes, we'll accept any credentials
-        if (credentials?.email && credentials?.password) {
-          return {
-            id: '1',
-            email: credentials.email,
-            name: credentials.email.split('@')[0],
-          }
+        if (!credentials?.email || !credentials?.password) {
+          return null;
         }
-        return null
+
+        try {
+          const user = await UserService.validatePassword(
+            credentials.email,
+            credentials.password
+          );
+
+          if (user) {
+            return {
+              id: user.id.toString(),
+              email: user.email,
+              name: user.name || user.email.split('@')[0],
+              image: user.image,
+            };
+          }
+        } catch (error) {
+          console.error('Authentication error:', error);
+        }
+
+        return null;
       }
     }),
     GoogleProvider({
@@ -41,17 +55,53 @@ export const authOptions: AuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'credentials') {
+        return true; // Already validated in authorize
       }
-      return token
+
+      if (account?.provider === 'google' || account?.provider === 'github') {
+        try {
+          // Check if user exists
+          if (!user.email) {
+            return false; // No email provided
+          }
+
+          let existingUser = await UserService.findUserByEmail(user.email);
+          
+          if (!existingUser) {
+            // Create new user from OAuth
+            existingUser = await UserService.createUser({
+              email: user.email,
+              name: user.name || user.email.split('@')[0],
+              provider: account.provider,
+              providerId: account.providerAccountId,
+              image: user.image || undefined,
+            });
+          }
+
+          // Update user ID for session
+          user.id = existingUser.id.toString();
+          return true;
+        } catch (error) {
+          console.error('OAuth sign in error:', error);
+          return false;
+        }
+      }
+
+      return true;
+    },
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id as string
+        (session.user as any).id = token.id as string;
       }
-      return session
+      return session;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

@@ -2,78 +2,106 @@
 
 import { useAppSelector } from '@/lib/hooks'
 import { Job } from '@/lib/slices/jobsSlice'
+import { useMemo } from 'react'
 
 export default function JobStats() {
     const jobs = useAppSelector((state) => state.jobs.jobs as Job[])
 
-    const stats = {
-        total: jobs.length,
-        open: jobs.filter((job) => job.status === 'Open').length,
-        interviewed: jobs.filter((job) => job.status === 'Interviewed').length,
-        hired: jobs.filter((job) => job.status === 'Hired').length,
-        rejected: jobs.filter((job) => job.status === 'Rejected').length,
-    }
+    const stats = useMemo(() => {
+        const total = jobs.length
+        const open = jobs.filter((job) => job.status === 'Prospect').length
+        const interviewed = jobs.filter((job) => job.status === 'Interviewed').length
+        const hired = jobs.filter((job) => job.status === 'Hired').length
+        const rejected = jobs.filter((job) => job.status === 'Rejected').length
+
+        const successRate = total > 0 ? ((hired / total) * 100).toFixed(1) : '0'
+        const interviewRate = total > 0 ? (((interviewed + hired) / total) * 100).toFixed(1) : '0'
+
+        return { total, open, interviewed, hired, rejected, successRate, interviewRate }
+    }, [jobs])
 
     const statCards = [
         {
             name: 'Total Applications',
             value: stats.total,
             icon: '📋',
-            color: 'text-blue-600',
-            bgColor: 'bg-blue-50',
+            gradient: 'from-blue-500 to-cyan-500',
+            change: '+12%',
+            changeType: 'positive'
         },
         {
-            name: 'Open Applications',
+            name: 'Active Applications',
             value: stats.open,
-            icon: '🔍',
-            color: 'text-yellow-600',
-            bgColor: 'bg-yellow-50',
+            icon: '🎯',
+            gradient: 'from-yellow-500 to-orange-500',
+            change: '+5%',
+            changeType: 'positive'
         },
         {
             name: 'Interviews',
             value: stats.interviewed,
             icon: '💼',
-            color: 'text-indigo-600',
-            bgColor: 'bg-indigo-50',
+            gradient: 'from-indigo-500 to-purple-500',
+            change: `${stats.interviewRate}%`,
+            changeType: 'neutral'
         },
         {
-            name: 'Hired',
-            value: stats.hired,
+            name: 'Success Rate',
+            value: `${stats.successRate}%`,
             icon: '🎉',
-            color: 'text-green-600',
-            bgColor: 'bg-green-50',
+            gradient: 'from-green-500 to-emerald-500',
+            change: '+2.1%',
+            changeType: 'positive'
         },
         {
             name: 'Rejected',
             value: stats.rejected,
-            icon: '❌',
-            color: 'text-red-600',
-            bgColor: 'bg-red-50',
+            icon: '📉',
+            gradient: 'from-red-500 to-pink-500',
+            change: '-8%',
+            changeType: 'negative'
         },
     ]
 
     return (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
-            {statCards.map((stat) => (
+        <div className="stats-grid mb-8">
+            {statCards.map((stat, index) => (
                 <div
                     key={stat.name}
-                    className="relative overflow-hidden rounded-lg bg-white dark:bg-gray-800 px-4 py-5 shadow sm:px-6 sm:py-6"
+                    className="glass-card group cursor-pointer relative overflow-hidden"
+                    style={{ animationDelay: `${index * 100}ms` }}
                 >
-                    <dt>
-                        <div className={`absolute rounded-md p-3 ${stat.bgColor}`}>
-                            <span className="text-2xl">{stat.icon}</span>
+                    {/* Background Gradient */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-5 group-hover:opacity-10 transition-opacity`}></div>
+
+                    {/* Content */}
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
+                                <span className="text-2xl">{stat.icon}</span>
+                            </div>
+                            <div className={`text-xs px-2 py-1 rounded-full ${stat.changeType === 'positive' ? 'bg-green-500/20 text-green-400' :
+                                stat.changeType === 'negative' ? 'bg-red-500/20 text-red-400' :
+                                    'bg-gray-500/20 text-gray-400'
+                                }`}>
+                                {stat.change}
+                            </div>
                         </div>
-                        <p className="ml-16 truncate text-sm font-medium text-gray-500 dark:text-gray-400">
-                            {stat.name}
-                        </p>
-                    </dt>
-                    <dd className="ml-16 flex items-baseline">
-                        <p className={`text-2xl font-semibold ${stat.color}`}>
-                            {stat.value}
-                        </p>
-                    </dd>
+
+                        <div>
+                            <p className="text-2xl font-bold text-white mb-1 group-hover:scale-105 transition-transform">
+                                {stat.value}
+                            </p>
+                            <p className="text-sm text-white/60 font-medium">
+                                {stat.name}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Hover Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
                 </div>
             ))}
         </div>
     )
-} 
+}

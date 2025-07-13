@@ -64,7 +64,7 @@ export const useDeleteJob = () => {
 
 export const useExportJobs = () => {
   return useMutation({
-    mutationFn: () => api.get<Blob>('/jobs/export'),
+    mutationFn: () => api.exportJobs(),
     onSuccess: (blob) => {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')

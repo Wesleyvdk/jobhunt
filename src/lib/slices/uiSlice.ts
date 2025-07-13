@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-export type JobStatus = 'Open' | 'Rejected' | 'Invited' | 'Interviewed' | 'Hired'
+// Updated job statuses with better meanings
+export type JobStatus = 'Prospect' | 'Applied' | 'Interviewed' | 'Rejected' | 'Hired' | 'Ghosted'
 
 interface UiState {
   theme: 'light' | 'dark'
   isJobModalOpen: boolean
-  selectedJobId: string | null
+  selectedJobId: number | null
   filters: {
     status: JobStatus | 'All'
     search: string
@@ -24,39 +25,40 @@ const initialState: UiState = {
     status: 'All',
     search: '',
     dateFrom: '',
-    dateTo: '',
+    dateTo: ''
   },
   sortBy: 'applicationDate',
-  sortOrder: 'desc',
+  sortOrder: 'desc'
 }
 
 const uiSlice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
-    toggleTheme: (state) => {
-      state.theme = state.theme === 'light' ? 'dark' : 'light'
+    setTheme: (state, action: PayloadAction<'light' | 'dark'>) => {
+      state.theme = action.payload
     },
-    openJobModal: (state, action: PayloadAction<string | null>) => {
+    openJobModal: (state) => {
       state.isJobModalOpen = true
-      state.selectedJobId = action.payload
     },
     closeJobModal: (state) => {
       state.isJobModalOpen = false
-      state.selectedJobId = null
+    },
+    setSelectedJobId: (state, action: PayloadAction<number | null>) => {
+      state.selectedJobId = action.payload
     },
     setFilters: (state, action: PayloadAction<Partial<UiState['filters']>>) => {
       state.filters = { ...state.filters, ...action.payload }
     },
-    setSorting: (state, action: PayloadAction<{ sortBy: UiState['sortBy']; sortOrder: UiState['sortOrder'] }>) => {
-      state.sortBy = action.payload.sortBy
-      state.sortOrder = action.payload.sortOrder
-    },
     clearFilters: (state) => {
       state.filters = initialState.filters
     },
-  },
+    setSorting: (state, action: PayloadAction<{ sortBy: UiState['sortBy'], sortOrder: UiState['sortOrder'] }>) => {
+      state.sortBy = action.payload.sortBy
+      state.sortOrder = action.payload.sortOrder
+    }
+  }
 })
 
-export const { toggleTheme, openJobModal, closeJobModal, setFilters, setSorting, clearFilters } = uiSlice.actions
-export default uiSlice.reducer 
+export const { setTheme, openJobModal, closeJobModal, setSelectedJobId, setFilters, clearFilters, setSorting } = uiSlice.actions
+export default uiSlice.reducer

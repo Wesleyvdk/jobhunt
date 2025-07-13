@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import Link from 'next/link'
 
 const signInSchema = z.object({
     email: z.string().email('Please enter a valid email'),
@@ -70,6 +71,12 @@ export default function SignIn() {
                     </h2>
                     <p className="mt-2 text-center text-sm text-gray-600">
                         Track your job applications with ease
+                    </p>
+                    <p className="mt-1 text-center text-sm text-gray-600">
+                        Don't have an account?{' '}
+                        <Link href="/auth/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+                            Create one here
+                        </Link>
                     </p>
                 </div>
 

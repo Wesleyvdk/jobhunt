@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JobHunter - Serverless Job Application Tracker
 
-## Getting Started
+A modern, fully serverless job hunting tracker built with Next.js, TypeScript, and NeonDB. Deploy directly to Vercel with zero backend infrastructure needed.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **📊 Job Application Tracking** - Track companies, positions, dates, and status
+- **🔍 Advanced Filtering** - Search, filter by status, and date ranges
+- **📈 Analytics Dashboard** - View application statistics and progress
+- **📤 CSV Export** - Export your data for backup or analysis
+- **🔐 Authentication** - Email/password, Google, and GitHub OAuth
+- **🌙 Dark Mode** - Beautiful responsive design with theme switching
+- **⚡ Real-time Updates** - Instant UI updates with React Query
+- **✅ Form Validation** - Type-safe forms with Zod validation
+
+## 🏗️ Architecture
+
+- **Frontend**: Next.js 15 with TypeScript, Redux Toolkit, React Hook Form
+- **Backend**: Next.js API Routes (serverless functions)
+- **Database**: NeonDB (PostgreSQL) with Drizzle ORM
+- **Authentication**: NextAuth.js with multiple providers
+- **Deployment**: Vercel (fully serverless)
+
+## 🚀 Quick Start
+
+1. **Clone and install**
+   ```bash
+   git clone <your-repo>
+   cd jobhunter
+   npm install
+   ```
+
+2. **Set up environment variables**
+   ```bash
+   copy env.example .env.local
+   # Edit .env.local with your values
+   ```
+
+3. **Set up database**
+   ```bash
+   # Get your NeonDB connection string
+   npm run db:generate
+   npm run db:migrate
+   ```
+
+4. **Run locally**
+   ```bash
+   npm run dev
+   ```
+
+5. **Deploy to Vercel**
+   ```bash
+   vercel
+   ```
+
+## 📁 Project Structure
+
+```
+/app
+├── api/                    # Serverless API routes
+│   ├── auth/[...nextauth]/ # NextAuth configuration
+│   ├── jobs/route.ts       # GET / POST all jobs
+│   ├── jobs/[id]/route.ts  # PATCH / DELETE specific job
+│   └── jobs/export/route.ts # CSV export
+├── dashboard/              # Dashboard pages
+└── auth/                   # Authentication pages
+
+/src
+├── components/             # React components
+├── lib/
+│   ├── database/          # Database schema and connection
+│   ├── slices/            # Redux store slices
+│   ├── hooks/             # Custom React hooks
+│   └── validations/       # Zod schemas
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Development
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run linter
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Database
+npm run db:generate  # Generate migrations
+npm run db:migrate   # Run migrations
+npm run db:studio    # Open database studio
+```
 
-## Learn More
+## 📚 Documentation
 
-To learn more about Next.js, take a look at the following resources:
+- [Setup Guide](SETUP_GUIDE_SERVERLESS.md) - Complete setup instructions
+- [API Documentation](API_DOCS.md) - API routes reference
+- [Deployment Guide](DEPLOYMENT.md) - Vercel deployment guide
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎯 Why Serverless?
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+✅ **Zero Infrastructure** - No servers to manage  
+✅ **Automatic Scaling** - Handles traffic spikes effortlessly  
+✅ **Cost Effective** - Pay only for what you use  
+✅ **Vercel Native** - Optimized for Vercel's platform  
+✅ **Type Safe** - End-to-end TypeScript  
+✅ **Rapid Development** - Full-stack in one codebase  
 
-## Deploy on Vercel
+## 🤝 Contributing
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+---
+
+Built with ❤️ using Next.js, TypeScript, and Vercel
