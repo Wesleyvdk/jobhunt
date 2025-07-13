@@ -3,7 +3,7 @@
 import { useMemo } from 'react'
 import { format } from 'date-fns'
 import { useAppSelector, useAppDispatch } from '@/lib/hooks'
-import { openJobModal, setSorting } from '@/lib/slices/uiSlice'
+import { openJobModal, setSorting, setSelectedJobId } from '@/lib/slices/uiSlice'
 import { useDeleteJob, useExportJobs } from '@/lib/hooks/useJobs'
 import { Job } from '@/lib/slices/jobsSlice'
 import {
@@ -16,6 +16,8 @@ import {
     EyeIcon
 } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
+
+type sortByState = 'company' | 'position' | 'applicationDate' | 'status'
 
 export default function JobTable() {
     const dispatch = useAppDispatch()
@@ -70,7 +72,7 @@ export default function JobTable() {
         if (sortBy === column) {
             dispatch(setSorting({ sortBy: column, sortOrder: sortOrder === 'asc' ? 'desc' : 'asc' }))
         } else {
-            dispatch(setSorting({ sortBy: column, sortOrder: 'asc' }))
+            dispatch(setSorting({ sortBy: column as sortByState, sortOrder: 'asc' }))
         }
     }
 
@@ -82,7 +84,7 @@ export default function JobTable() {
             'Hired': 'status-hired',
             'Rejected': 'status-rejected'
         }
-        
+
         return (
             <span className={`status-badge ${statusClasses[status as keyof typeof statusClasses] || 'status-open'}`}>
                 {status}
@@ -136,16 +138,15 @@ export default function JobTable() {
                             ].map((column) => (
                                 <th
                                     key={column.key}
-                                    className={`px-6 py-4 text-left text-sm font-medium text-white/80 ${
-                                        column.sortable !== false ? 'cursor-pointer hover:text-white' : ''
-                                    }`}
+                                    className={`px-6 py-4 text-left text-sm font-medium text-white/80 ${column.sortable !== false ? 'cursor-pointer hover:text-white' : ''
+                                        }`}
                                     onClick={() => column.sortable !== false && handleSort(column.key)}
                                 >
                                     <div className="flex items-center gap-2">
                                         {column.label}
                                         {column.sortable !== false && sortBy === column.key && (
-                                            sortOrder === 'asc' ? 
-                                                <ArrowUpIcon className="h-4 w-4 text-indigo-400" /> : 
+                                            sortOrder === 'asc' ?
+                                                <ArrowUpIcon className="h-4 w-4 text-indigo-400" /> :
                                                 <ArrowDownIcon className="h-4 w-4 text-indigo-400" />
                                         )}
                                     </div>
@@ -155,8 +156,8 @@ export default function JobTable() {
                     </thead>
                     <tbody>
                         {filteredAndSortedJobs.map((job, index) => (
-                            <tr 
-                                key={job.id} 
+                            <tr
+                                key={job.id}
                                 className="table-row group"
                                 style={{ animationDelay: `${index * 50}ms` }}
                             >
@@ -168,9 +169,9 @@ export default function JobTable() {
                                         <div>
                                             <p className="font-medium text-white">{job.company}</p>
                                             {job.jobLink && (
-                                                <a 
-                                                    href={job.jobLink} 
-                                                    target="_blank" 
+                                                <a
+                                                    href={job.jobLink}
+                                                    target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 mt-1"
                                                 >
@@ -205,14 +206,17 @@ export default function JobTable() {
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
-                                            onClick={() => dispatch(openJobModal(job.id))}
+                                            onClick={() => {
+                                                dispatch(setSelectedJobId(job.id))
+                                                dispatch(openJobModal())
+                                            }}
                                             className="p-2 rounded-lg bg-indigo-500/20 text-indigo-400 hover:bg-indigo-500/30 transition-colors"
                                             title="Edit"
                                         >
                                             <PencilIcon className="h-4 w-4" />
                                         </button>
                                         <button
-                                            onClick={() => deleteJobMutation.mutate(job.id)}
+                                            onClick={() => deleteJobMutation.mutate(job.id.toString())}
                                             className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
                                             title="Delete"
                                         >
@@ -232,7 +236,7 @@ export default function JobTable() {
                     <h3 className="text-lg font-medium text-white mb-2">No jobs found</h3>
                     <p className="text-white/60 mb-4">Try adjusting your filters or add a new job application.</p>
                     <button
-                        onClick={() => dispatch(openJobModal(null))}
+                        onClick={() => dispatch(openJobModal())}
                         className="btn-primary"
                     >
                         Add Your First Job
