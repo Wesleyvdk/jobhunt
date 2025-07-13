@@ -51,7 +51,7 @@ export const useDeleteJob = () => {
   const dispatch = useAppDispatch()
 
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/jobs/${id}`),
+    mutationFn: (id: number) => api.delete(`/jobs/${id}`),
     onSuccess: (_, jobId) => {
       queryClient.invalidateQueries({ queryKey: ['jobs'] })
       dispatch(deleteJob(jobId))

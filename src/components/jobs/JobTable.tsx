@@ -216,7 +216,7 @@ export default function JobTable() {
                                             <PencilIcon className="h-4 w-4" />
                                         </button>
                                         <button
-                                            onClick={() => deleteJobMutation.mutate(job.id.toString())}
+                                            onClick={() => deleteJobMutation.mutate(job.id)}
                                             className="p-2 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-colors"
                                             title="Delete"
                                         >
