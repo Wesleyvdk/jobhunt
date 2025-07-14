@@ -291,8 +291,8 @@ export default function JobImport({ isOpen, onClose }: JobImportProps) {
 
                         <div
                             className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${isDragging
-                                    ? 'border-indigo-400 bg-indigo-500/10'
-                                    : 'border-gray-600 hover:border-gray-500'
+                                ? 'border-indigo-400 bg-indigo-500/10'
+                                : 'border-gray-600 hover:border-gray-500'
                                 }`}
                             onDragOver={handleDragOver}
                             onDragLeave={handleDragLeave}

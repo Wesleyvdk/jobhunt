@@ -37,7 +37,7 @@ export interface PreferencesState {
   // Theme
   theme: {
     mode: 'light' | 'dark' | 'system'
-    accentColor: 'indigo' | 'blue' | 'purple' | 'green' | 'red'
+    accentColor: 'indigo' | 'blue' | 'emerald' | 'rose'
     fontSize: 'small' | 'medium' | 'large'
     reducedMotion: boolean
   }

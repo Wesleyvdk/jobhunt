@@ -130,8 +130,8 @@ export default function JobFilters() {
                                 key={status.value}
                                 onClick={() => handleFilterChange('status', status.value)}
                                 className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${filters.status === status.value
-                                        ? `status-${status.value.toLowerCase()} ring-2 ring-current`
-                                        : 'bg-white/10 text-white/60 hover:bg-white/15'
+                                    ? `status-${status.value.toLowerCase()} ring-2 ring-current`
+                                    : 'bg-white/10 text-white/60 hover:bg-white/15'
                                     }`}
                             >
                                 {status.label}

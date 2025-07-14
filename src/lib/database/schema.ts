@@ -67,6 +67,11 @@ export const userPreferences = pgTable('user_preferences', {
   dataRetention: integer('data_retention').default(365), // days
   autoBackup: boolean('auto_backup').default(true),
   
+  // Onboarding Fields
+  onboardingCompleted: boolean('onboarding_completed').default(false),
+  onboardingStep: integer('onboarding_step').default(0),
+  welcomeMessageSeen: boolean('welcome_message_seen').default(false),
+  
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

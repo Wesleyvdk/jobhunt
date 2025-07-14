@@ -15,6 +15,13 @@
       "when": 1752389428949,
       "tag": "0001_narrow_human_fly",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1752466857341,
+      "tag": "0002_light_stranger",
+      "breakpoints": true
     }
   ]
 }

@@ -10,6 +10,7 @@ import JobKanbanBoard from '@/components/jobs/JobKanbanBoard'
 import ViewToggle from '@/components/jobs/ViewToggle'
 import ApplicationsChart from '@/components/charts/ApplicationsChart'
 import StatusChart from '@/components/charts/StatusChart'
+import OnboardingFlow from '@/components/onboarding/OnboardingFlow'
 import { useJobs } from '@/lib/hooks/useJobs'
 import { useAppSelector, useAppDispatch } from '@/lib/hooks'
 import { setJobs, setLoading, setError, updateJob } from '@/lib/slices/jobsSlice'
@@ -21,12 +22,35 @@ export default function DashboardPage() {
     const { data: session, status } = useSession()
     const router = useRouter()
     const dispatch = useAppDispatch()
+    const [showOnboarding, setShowOnboarding] = useState(false)
+    const [onboardingLoading, setOnboardingLoading] = useState(true)
 
     // Use API data to sync with backend, but use Redux store for UI
     const { data: apiJobs, isLoading, error } = useJobs()
     const jobs = useAppSelector((state) => state.jobs.jobs) // Use Redux store for UI
     const isJobModalOpen = useAppSelector((state) => state.ui.isJobModalOpen)
     const [view, setView] = useState<'table' | 'kanban'>('table')
+
+    // Check onboarding status
+    useEffect(() => {
+        const checkOnboarding = async () => {
+            if (status === 'authenticated') {
+                try {
+                    const response = await fetch('/api/onboarding')
+                    if (response.ok) {
+                        const data = await response.json()
+                        setShowOnboarding(!data.completed)
+                    }
+                } catch (error) {
+                    console.error('Failed to check onboarding status:', error)
+                } finally {
+                    setOnboardingLoading(false)
+                }
+            }
+        }
+
+        checkOnboarding()
+    }, [status])
 
     // --- Job stats (now using Redux store data) ---
     const stats = useMemo(() => {
@@ -93,14 +117,30 @@ export default function DashboardPage() {
         }
     }
 
-    if (status === 'loading') {
+    if (status === 'loading' || onboardingLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-lg">Loading...</div>
             </div>
         )
     }
-    if (status === 'unauthenticated') return null
+
+    if (status === 'unauthenticated') {
+        router.push('/auth/signin')
+        return null
+    }
+
+    if (showOnboarding) {
+        return (
+            <OnboardingFlow
+                onComplete={() => {
+                    setShowOnboarding(false)
+                    // Refresh the page to load user preferences
+                    window.location.reload()
+                }}
+            />
+        )
+    }
 
     return (
         <>

@@ -27,6 +27,8 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
     const [activeTab, setActiveTab] = useState<TabType>('dashboard')
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
+    const [originalPreferences, setOriginalPreferences] = useState<any>(null)
+    const [hasChanges, setHasChanges] = useState(false)
 
     // Load preferences on mount
     useEffect(() => {
@@ -34,6 +36,15 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
             loadUserPreferences()
         }
     }, [isOpen])
+
+    // Track changes by comparing current preferences with original
+    useEffect(() => {
+        if (originalPreferences) {
+            const currentPrefs = JSON.stringify(preferences)
+            const originalPrefs = JSON.stringify(originalPreferences)
+            setHasChanges(currentPrefs !== originalPrefs)
+        }
+    }, [preferences, originalPreferences])
 
     const loadUserPreferences = async () => {
         setIsLoading(true)
@@ -82,9 +93,12 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
                     }
                 }
                 dispatch(loadPreferences(transformedPrefs))
+                // Store original preferences for change tracking
+                setOriginalPreferences(JSON.parse(JSON.stringify(transformedPrefs)))
+                setHasChanges(false)
             }
         } catch (error) {
-            console.error('Error loading preferences:', error)
+            console.error('Failed to load preferences:', error)
         } finally {
             setIsLoading(false)
         }
@@ -131,6 +145,9 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
             })
 
             if (response.ok) {
+                // After successful save, update original preferences
+                setOriginalPreferences(JSON.parse(JSON.stringify(preferences)))
+                setHasChanges(false)
                 onClose()
             }
         } catch (error) {
@@ -138,6 +155,16 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
         } finally {
             setIsSaving(false)
         }
+    }
+
+    const handleClose = () => {
+        if (hasChanges) {
+            const confirmClose = window.confirm('You have unsaved changes. Are you sure you want to close without saving?')
+            if (!confirmClose) return
+        }
+        setHasChanges(false)
+        setOriginalPreferences(null)
+        onClose()
     }
 
     const tabs = [
@@ -152,27 +179,28 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleClose} />
 
             {/* Modal */}
-            <div className="relative w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden">
-                <div className="glass-panel p-0">
+            <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+                <div className="glass-panel p-0 flex flex-col h-full">
                     {/* Header */}
-                    <div className="flex items-center justify-between p-6 border-b border-slate-600/30">
+                    <div className="flex items-center justify-between p-6 border-b border-slate-600/30 flex-shrink-0">
                         <h2 className="text-2xl font-bold accent">Preferences</h2>
                         <button
-                            onClick={onClose}
+                            onClick={handleClose}
                             className="p-2 rounded-lg hover:bg-slate-700/50 transition-colors"
                         >
                             <XMarkIcon className="h-6 w-6" />
                         </button>
                     </div>
 
-                    <div className="flex h-[600px]">
+                    {/* Content Area */}
+                    <div className="flex flex-1 min-h-0">
                         {/* Sidebar */}
-                        <div className="w-64 border-r border-slate-600/30 p-4">
+                        <div className="w-64 border-r border-slate-600/30 p-4 flex-shrink-0">
                             <nav className="space-y-2">
                                 {tabs.map((tab) => {
                                     const Icon = tab.icon
@@ -193,8 +221,8 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
                             </nav>
                         </div>
 
-                        {/* Content */}
-                        <div className="flex-1 p-6 overflow-y-auto">
+                        {/* Main Content */}
+                        <div className="flex-1 p-4 overflow-y-auto">
                             {isLoading ? (
                                 <div className="flex items-center justify-center h-full">
                                     <div className="text-slate-400">Loading preferences...</div>
@@ -451,17 +479,17 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
                                                         Accent Color
                                                     </label>
                                                     <select
-                                                        value={preferences.theme.accentColor}
+                                                        value={preferences.theme?.accentColor || 'indigo'}
                                                         onChange={(e) => dispatch(updateTheme({
-                                                            accentColor: e.target.value as 'indigo' | 'blue' | 'purple' | 'green' | 'red'
+                                                            ...preferences.theme,
+                                                            accentColor: e.target.value as 'indigo' | 'blue' | 'emerald' | 'rose'
                                                         }))}
                                                         className="w-full px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-600/30 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 backdrop-blur-sm transition-all duration-200"
                                                     >
                                                         <option value="indigo">Indigo</option>
                                                         <option value="blue">Blue</option>
-                                                        <option value="purple">Purple</option>
-                                                        <option value="green">Green</option>
-                                                        <option value="red">Red</option>
+                                                        <option value="emerald">Emerald</option>
+                                                        <option value="rose">Rose</option>
                                                     </select>
                                                 </div>
 
@@ -593,21 +621,35 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
                     </div>
 
                     {/* Footer */}
-                    <div className="flex items-center justify-end gap-3 p-6 border-t border-slate-600/30">
-                        <button
-                            onClick={onClose}
-                            className="btn-secondary"
-                            disabled={isSaving}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={savePreferences}
-                            className="btn-primary"
-                            disabled={isSaving}
-                        >
-                            {isSaving ? 'Saving...' : 'Save Preferences'}
-                        </button>
+                    <div className="flex items-center justify-between gap-3 p-6 border-t border-slate-600/30">
+                        <div className="flex items-center gap-2">
+                            {hasChanges && (
+                                <span className="text-sm text-amber-400 flex items-center gap-1">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                    Unsaved changes
+                                </span>
+                            )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={handleClose}
+                                className="btn-secondary"
+                                disabled={isSaving}
+                            >
+                                {hasChanges ? 'Cancel' : 'Close'}
+                            </button>
+                            {hasChanges && (
+                                <button
+                                    onClick={savePreferences}
+                                    className="btn-primary"
+                                    disabled={isSaving}
+                                >
+                                    {isSaving ? 'Saving...' : 'Save Changes'}
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
