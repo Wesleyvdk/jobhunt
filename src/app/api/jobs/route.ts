@@ -6,12 +6,13 @@ import { jobs, NewJob } from '@/lib/database/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { UserService } from '@/lib/services/userService';
+import { JobStatus } from '@/lib/slices/uiSlice';
 
 const createJobSchema = z.object({
   company: z.string().min(1, 'Company is required').max(100),
   position: z.string().min(1, 'Position is required').max(100),
   applicationDate: z.string().min(1, 'Application date is required'),
-  status: z.enum(['Open', 'Rejected', 'Invited', 'Interviewed', 'Hired']),
+  status: z.enum(['Prospect', 'Applied', 'Ghosted', 'Interviewed', 'Rejected', 'Hired'] as const),
   notes: z.string().max(1000).optional(),
   jobLink: z.string().url().optional().or(z.literal('')),
   followUpDate: z.string().optional(),
@@ -95,4 +96,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
