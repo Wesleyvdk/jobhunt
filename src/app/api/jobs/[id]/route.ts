@@ -14,7 +14,7 @@ const updateJobSchema = z.object({
   status: z.enum(['Prospect', 'Applied', 'Ghosted', 'Interviewed', 'Rejected', 'Hired']).optional(),
   notes: z.string().max(1000).optional(),
   jobLink: z.string().url().optional().or(z.literal('')),
-  followUpDate: z.string().optional(),
+  followUpDate: z.string().optional().transform(val => val === '' ? null : val),
 });
 
 export async function PATCH(
@@ -60,10 +60,12 @@ export async function PATCH(
       updatedAt: new Date(),
     };
 
-    // Remove undefined values
+    // Convert empty strings to null for date fields and remove undefined values
     Object.keys(updateData).forEach(key => {
       if (updateData[key] === undefined) {
         delete updateData[key];
+      } else if ((key === 'applicationDate' || key === 'followUpDate') && updateData[key] === '') {
+        updateData[key] = null;
       }
     });
 
