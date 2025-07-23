@@ -59,13 +59,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const applyTheme = (themeName: string) => {
         const colors = themeColors[themeName as keyof typeof themeColors] || themeColors.indigo
 
-        // Apply CSS custom properties
         document.documentElement.style.setProperty('--color-primary', colors.primary)
         document.documentElement.style.setProperty('--color-primary-hover', colors.primaryHover)
         document.documentElement.style.setProperty('--gradient-primary', colors.gradient)
         document.documentElement.style.setProperty('--gradient-primary-hover', colors.gradientHover)
 
-        // Update data attribute for CSS selectors
         document.documentElement.setAttribute('data-theme', themeName)
     }
 

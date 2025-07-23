@@ -13,17 +13,14 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user ID
     const user = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1)
     if (user.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Get user preferences
     const preferences = await db.select().from(userPreferences).where(eq(userPreferences.userId, user[0].id)).limit(1)
     
     if (preferences.length === 0) {
-      // Create default preferences if none exist
       const defaultPrefs = await db.insert(userPreferences).values({
         userId: user[0].id
       }).returning()
@@ -48,13 +45,11 @@ export async function PATCH(request: NextRequest) {
 
     const body = await request.json()
     
-    // Get user ID
     const user = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1)
     if (user.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Update preferences
     const updatedPreferences = await db
       .update(userPreferences)
       .set({ ...body, updatedAt: new Date() })
@@ -62,7 +57,6 @@ export async function PATCH(request: NextRequest) {
       .returning()
 
     if (updatedPreferences.length === 0) {
-      // Create preferences if they don't exist
       const newPreferences = await db.insert(userPreferences).values({
         userId: user[0].id,
         ...body

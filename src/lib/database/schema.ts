@@ -4,10 +4,10 @@ export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   name: varchar('name', { length: 255 }),
-  password: varchar('password', { length: 255 }), // For email/password auth
-  provider: varchar('provider', { length: 50 }), // 'credentials', 'google', 'github'
-  providerId: varchar('provider_id', { length: 255 }), // ID from OAuth provider
-  image: text('image'), // Profile image URL
+  password: varchar('password', { length: 255 }),
+  provider: varchar('provider', { length: 50 }),
+  providerId: varchar('provider_id', { length: 255 }),
+  image: text('image'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

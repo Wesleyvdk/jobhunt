@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, name } = registerSchema.parse(body);
 
-    // Check if user already exists
     const existingUser = await UserService.findUserByEmail(email);
     if (existingUser) {
       return NextResponse.json(
@@ -22,7 +21,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create new user
     const user = await UserService.createUser({
       email,
       password,
@@ -30,7 +28,6 @@ export async function POST(request: NextRequest) {
       provider: 'credentials',
     });
 
-    // Return user without password
     const { password: _, ...userWithoutPassword } = user;
     
     return NextResponse.json(

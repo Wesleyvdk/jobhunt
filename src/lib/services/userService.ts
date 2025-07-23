@@ -55,7 +55,7 @@ export class UserService {
       .where(
         or(
           eq(users.providerId, providerId),
-          eq(users.email, providerId) // For OAuth, providerId might be email
+          eq(users.email, providerId)
         )
       )
       .limit(1);

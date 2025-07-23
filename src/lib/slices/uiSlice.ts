@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-// Updated job statuses with better meanings
 export type JobStatus = 'Prospect' | 'Applied' | 'Interviewed' | 'Rejected' | 'Hired' | 'Ghosted'
 
 interface UiState {

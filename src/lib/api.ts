@@ -15,8 +15,6 @@ class ApiClient {
       'Content-Type': 'application/json',
     }
     
-    // For Next.js API routes, we use session cookies automatically
-    // No need to manually add Authorization headers
     return headers
   }
 

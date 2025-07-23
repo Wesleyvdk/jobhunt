@@ -89,13 +89,11 @@ export default function JobImport({ isOpen, onClose }: JobImportProps) {
             let data: any[] = []
 
             if (fileExtension === 'csv') {
-                // Parse CSV
                 const text = await file.text()
                 const result = Papa.parse(text, {
                     header: true,
                     skipEmptyLines: true,
                     transformHeader: (header) => {
-                        // Normalize header names
                         const normalized = header.toLowerCase().trim()
                         const mapping: { [key: string]: string } = {
                             'company name': 'company',
@@ -127,14 +125,12 @@ export default function JobImport({ isOpen, onClose }: JobImportProps) {
                 })
                 data = result.data
             } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
-                // Parse Excel
                 const buffer = await file.arrayBuffer()
                 const workbook = XLSX.read(buffer, { type: 'array' })
                 const sheetName = workbook.SheetNames[0]
                 const worksheet = workbook.Sheets[sheetName]
                 data = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
 
-                // Convert to object format with headers
                 if (data.length > 0) {
                     const headers = data[0] as string[]
                     const normalizedHeaders = headers.map(header => {
@@ -179,7 +175,6 @@ export default function JobImport({ isOpen, onClose }: JobImportProps) {
                 throw new Error('Unsupported file format. Please use CSV or Excel files.')
             }
 
-            // Validate and process data
             const result: ImportResult = {
                 success: [],
                 errors: []

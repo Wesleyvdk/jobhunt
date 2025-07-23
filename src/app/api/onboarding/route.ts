@@ -16,22 +16,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { jobTitle, experience, goals, theme, notifications, completed } = body
 
-    // Get user ID
     const user = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1)
     if (user.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Create or update user preferences with onboarding data
     const existingPrefs = await db.select().from(userPreferences).where(eq(userPreferences.userId, user[0].id)).limit(1)
     
     const preferencesData = {
       userId: user[0].id,
-      // Fix: Use correct field names from schema
       accentColor: theme || 'indigo',
       emailNotifications: notifications ?? true,
       onboardingCompleted: completed ?? true,
-      // Keep existing preferences or set defaults
       defaultView: existingPrefs[0]?.defaultView || 'kanban',
       itemsPerPage: existingPrefs[0]?.itemsPerPage || 10,
       showCompletedJobs: existingPrefs[0]?.showCompletedJobs ?? true,
@@ -82,13 +78,11 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user ID
     const user = await db.select().from(users).where(eq(users.email, session.user.email)).limit(1)
     if (user.length === 0) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Check if onboarding is completed
     const preferences = await db.select().from(userPreferences).where(eq(userPreferences.userId, user[0].id)).limit(1)
     
     return NextResponse.json({ 

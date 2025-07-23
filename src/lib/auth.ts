@@ -56,20 +56,18 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === 'credentials') {
-        return true; // Already validated in authorize
+        return true;
       }
 
       if (account?.provider === 'google' || account?.provider === 'github') {
         try {
-          // Check if user exists
           if (!user.email) {
-            return false; // No email provided
+            return false;
           }
 
           let existingUser = await UserService.findUserByEmail(user.email);
           
           if (!existingUser) {
-            // Create new user from OAuth
             existingUser = await UserService.createUser({
               email: user.email,
               name: user.name || user.email.split('@')[0],
@@ -79,7 +77,6 @@ export const authOptions: AuthOptions = {
             });
           }
 
-          // Update user ID for session
           user.id = existingUser.id.toString();
           return true;
         } catch (error) {

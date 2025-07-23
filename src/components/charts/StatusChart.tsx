@@ -10,7 +10,7 @@ interface StatusChartProps {
 
 const STATUS_COLORS = {
   'Open': '#3b82f6',
-  'Applied': '#f59e0b', 
+  'Applied': '#f59e0b',
   'Interviewed': '#8b5cf6',
   'Rejected': '#ef4444',
   'Hired': '#10b981',
@@ -20,11 +20,11 @@ const STATUS_COLORS = {
 export default function StatusChart({ jobs }: StatusChartProps) {
   const chartData = useMemo(() => {
     const statusCounts: Record<string, number> = {}
-    
+
     jobs.forEach(job => {
       statusCounts[job.status] = (statusCounts[job.status] || 0) + 1
     })
-    
+
     return Object.entries(statusCounts)
       .filter(([_, count]) => count > 0)
       .map(([status, count]) => ({
@@ -35,19 +35,19 @@ export default function StatusChart({ jobs }: StatusChartProps) {
   }, [jobs])
 
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
-    if (percent < 0.05) return null // Don't show labels for slices < 5%
-    
+    if (percent < 0.05) return null
+
     const RADIAN = Math.PI / 180
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5
     const x = cx + radius * Math.cos(-midAngle * RADIAN)
     const y = cy + radius * Math.sin(-midAngle * RADIAN)
 
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
         fontSize={12}
         fontWeight={600}
@@ -76,7 +76,7 @@ export default function StatusChart({ jobs }: StatusChartProps) {
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip 
+          <Tooltip
             contentStyle={{
               backgroundColor: 'rgba(0,0,0,0.8)',
               border: '1px solid rgba(255,255,255,0.2)',
@@ -84,7 +84,7 @@ export default function StatusChart({ jobs }: StatusChartProps) {
               color: 'white'
             }}
           />
-          <Legend 
+          <Legend
             wrapperStyle={{ color: 'rgba(255,255,255,0.8)' }}
           />
         </PieChart>

@@ -119,7 +119,6 @@ export default function JobKanbanBoard({ jobs, onStatusChange }: JobKanbanBoardP
         return grouped
     })
 
-    // Update columns when jobs prop changes
     React.useEffect(() => {
         const grouped: Record<string, Job[]> = {}
         STATUSES.forEach(({ key }) => {
@@ -135,7 +134,6 @@ export default function JobKanbanBoard({ jobs, onStatusChange }: JobKanbanBoardP
         const activeId = Number(active.id)
         const overId = over.id as string
 
-        // Find source column
         let sourceCol = null
         for (const status of STATUSES) {
             if (columns[status.key].find((job) => job.id === activeId)) {
@@ -144,27 +142,22 @@ export default function JobKanbanBoard({ jobs, onStatusChange }: JobKanbanBoardP
             }
         }
 
-        // The overId should be the status key when dropping on a column
         const destCol = STATUSES.find(s => s.key === overId)?.key
 
         if (sourceCol && destCol && sourceCol !== destCol) {
             const job = columns[sourceCol].find((j) => j.id === activeId)
             if (job) {
-                // Optimistically update local state immediately
                 setColumns(prev => {
                     const newColumns = { ...prev }
 
-                    // Remove job from source column
                     newColumns[sourceCol] = newColumns[sourceCol].filter(j => j.id !== activeId)
 
-                    // Add job to destination column with updated status
                     const updatedJob = { ...job, status: destCol as any }
                     newColumns[destCol] = [...newColumns[destCol], updatedJob]
 
                     return newColumns
                 })
 
-                // Then update the backend
                 onStatusChange(job.id, destCol)
             }
         }

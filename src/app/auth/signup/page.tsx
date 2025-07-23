@@ -19,7 +19,6 @@ export default function SignUpPage() {
         setLoading(true)
 
         try {
-            // Register user
             const response = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: {
@@ -34,7 +33,6 @@ export default function SignUpPage() {
                 throw new Error(data.error || 'Registration failed')
             }
 
-            // Automatically sign in after successful registration
             const result = await signIn('credentials', {
                 email,
                 password,

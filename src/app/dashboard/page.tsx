@@ -25,13 +25,11 @@ export default function DashboardPage() {
     const [showOnboarding, setShowOnboarding] = useState(false)
     const [onboardingLoading, setOnboardingLoading] = useState(true)
 
-    // Use API data to sync with backend, but use Redux store for UI
     const { data: apiJobs, isLoading, error } = useJobs()
-    const jobs = useAppSelector((state) => state.jobs.jobs) // Use Redux store for UI
+    const jobs = useAppSelector((state) => state.jobs.jobs)
     const isJobModalOpen = useAppSelector((state) => state.ui.isJobModalOpen)
     const [view, setView] = useState<'table' | 'kanban'>('table')
 
-    // Check onboarding status
     useEffect(() => {
         const checkOnboarding = async () => {
             if (status === 'authenticated') {
@@ -52,7 +50,6 @@ export default function DashboardPage() {
         checkOnboarding()
     }, [status])
 
-    // --- Job stats (now using Redux store data) ---
     const stats = useMemo(() => {
         const total = jobs?.length || 0
         const byStatus = {
@@ -78,7 +75,7 @@ export default function DashboardPage() {
             followUps = followUps.sort((a, b) => new Date(a.followUpDate).getTime() - new Date(b.followUpDate).getTime()).slice(0, 5)
         }
         return { total, byStatus, interviews, offers, followUps, recent }
-    }, [jobs]) // Now depends on Redux store
+    }, [jobs])
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -86,7 +83,6 @@ export default function DashboardPage() {
         }
     }, [status, router])
 
-    // Sync API data with Redux store
     useEffect(() => {
         if (apiJobs) {
             dispatch(setJobs(apiJobs))
@@ -103,15 +99,12 @@ export default function DashboardPage() {
         const job = jobs?.find(j => j.id === jobId)
         if (!job) return
 
-        // Optimistically update Redux store immediately
         dispatch(updateJob({ ...job, status: newStatus as JobStatus }))
 
         try {
             const updated = await api.patch<Job>(`/jobs/${jobId}`, { status: newStatus })
-            // Update again with server response to ensure consistency
             dispatch(updateJob(updated))
         } catch (err) {
-            // Revert optimistic update on error
             dispatch(updateJob(job))
             dispatch(setError('Failed to update job status'))
         }
@@ -135,7 +128,6 @@ export default function DashboardPage() {
             <OnboardingFlow
                 onComplete={() => {
                     setShowOnboarding(false)
-                    // Refresh the page to load user preferences
                     window.location.reload()
                 }}
             />

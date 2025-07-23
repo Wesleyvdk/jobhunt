@@ -17,7 +17,6 @@ export function PreferencesLoader({ children }: { children: React.ReactNode }) {
                     const response = await fetch('/api/preferences')
                     if (response.ok) {
                         const data = await response.json()
-                        // Transform database format to Redux format
                         const transformedPrefs = {
                             dashboardLayout: {
                                 defaultView: data.defaultView || 'kanban',

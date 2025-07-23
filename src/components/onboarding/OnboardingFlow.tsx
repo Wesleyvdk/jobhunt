@@ -234,7 +234,6 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
     const handleComplete = async () => {
         try {
-            // Save onboarding preferences
             await fetch('/api/onboarding', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -247,7 +246,7 @@ export default function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
             onComplete()
         } catch (error) {
             console.error('Failed to save onboarding preferences:', error)
-            onComplete() // Continue anyway
+            onComplete()
         }
     }
 

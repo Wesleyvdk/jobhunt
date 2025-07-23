@@ -30,14 +30,12 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
     const [originalPreferences, setOriginalPreferences] = useState<any>(null)
     const [hasChanges, setHasChanges] = useState(false)
 
-    // Load preferences on mount
     useEffect(() => {
         if (isOpen) {
             loadUserPreferences()
         }
     }, [isOpen])
 
-    // Track changes by comparing current preferences with original
     useEffect(() => {
         if (originalPreferences) {
             const currentPrefs = JSON.stringify(preferences)
@@ -52,7 +50,6 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
             const response = await fetch('/api/preferences')
             if (response.ok) {
                 const data = await response.json()
-                // Transform database format to Redux format
                 const transformedPrefs = {
                     dashboardLayout: {
                         defaultView: data.defaultView || 'kanban',
@@ -93,7 +90,6 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
                     }
                 }
                 dispatch(loadPreferences(transformedPrefs))
-                // Store original preferences for change tracking
                 setOriginalPreferences(JSON.parse(JSON.stringify(transformedPrefs)))
                 setHasChanges(false)
             }
@@ -107,7 +103,6 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
     const savePreferences = async () => {
         setIsSaving(true)
         try {
-            // Transform Redux format to database format
             const dbFormat = {
                 defaultView: preferences.dashboardLayout.defaultView,
                 itemsPerPage: preferences.dashboardLayout.itemsPerPage,
@@ -145,7 +140,6 @@ export default function PreferencesModal({ isOpen, onClose }: PreferencesModalPr
             })
 
             if (response.ok) {
-                // After successful save, update original preferences
                 setOriginalPreferences(JSON.parse(JSON.stringify(preferences)))
                 setHasChanges(false)
                 onClose()

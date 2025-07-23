@@ -45,7 +45,6 @@ export default function JobTable() {
             return matchesSearch && matchesStatus && matchesDateRange
         })
 
-        // Sort logic remains the same
         filtered.sort((a, b) => {
             let aValue: any = a[sortBy]
             let bValue: any = b[sortBy]

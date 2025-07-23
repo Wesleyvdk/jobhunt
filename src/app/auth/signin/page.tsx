@@ -24,7 +24,7 @@ export default function SignInPage() {
     }
 
     if (status === 'authenticated') {
-        return null // Will redirect
+        return null
     }
 
     return <SignIn />

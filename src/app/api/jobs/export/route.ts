@@ -15,7 +15,6 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Find user by email to get their ID
     const user = await UserService.findUserByEmail(session.user.email);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -31,7 +30,6 @@ export async function GET() {
       return NextResponse.json({ error: 'No jobs to export' }, { status: 404 });
     }
 
-    // Transform data for CSV export
     const csvData = userJobs.map(job => ({
       Company: job.company,
       Position: job.position,

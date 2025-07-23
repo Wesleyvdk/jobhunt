@@ -28,13 +28,11 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Find user by email to get their ID
     const user = await UserService.findUserByEmail(session.user.email);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Await params before accessing properties
     const { id } = await params;
     const jobId = parseInt(id);
     if (isNaN(jobId)) {
@@ -44,7 +42,6 @@ export async function PATCH(
     const body = await request.json();
     const validatedData = updateJobSchema.parse(body);
 
-    // Check if job exists and belongs to user
     const existingJob = await db
       .select()
       .from(jobs)
@@ -60,7 +57,6 @@ export async function PATCH(
       updatedAt: new Date(),
     };
 
-    // Convert empty strings to null for date fields and remove undefined values
     Object.keys(updateData).forEach(key => {
       if (updateData[key] === undefined) {
         delete updateData[key];
@@ -103,20 +99,17 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Find user by email to get their ID
     const user = await UserService.findUserByEmail(session.user.email);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Await params before accessing properties
     const { id } = await params;
     const jobId = parseInt(id);
     if (isNaN(jobId)) {
       return NextResponse.json({ error: 'Invalid job ID' }, { status: 400 });
     }
 
-    // Check if job exists and belongs to user
     const existingJob = await db
       .select()
       .from(jobs)
